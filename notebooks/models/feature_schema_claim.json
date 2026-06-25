@@ -1,0 +1,101 @@
+{
+  "model": "Model B \u2014 Claim Outcome Classifier",
+  "target": "claim_status",
+  "target_encoding": {
+    "Paid": 0,
+    "Pending": 1,
+    "Rejected": 2
+  },
+  "n_features": 30,
+  "features": [
+    "age",
+    "chronic_flag",
+    "length_of_stay_hours",
+    "billed_amount",
+    "payment_days",
+    "gender_M",
+    "city_Chennai",
+    "city_Delhi",
+    "city_Hyderabad",
+    "city_Mumbai",
+    "city_Pune",
+    "insurance_provider_HealthPlus",
+    "insurance_provider_MediCareX",
+    "insurance_provider_SecureLife",
+    "department_ER",
+    "department_General",
+    "department_ICU",
+    "department_Neurology",
+    "department_Orthopedics",
+    "visit_type_ICU",
+    "visit_type_OPD",
+    "age_group_Young_Adult",
+    "age_group_Adult",
+    "age_group_Senior",
+    "los_band_Normal",
+    "los_band_Long",
+    "billed_amount_band_Mid",
+    "billed_amount_band_High",
+    "payment_days_band_Normal",
+    "payment_days_band_Slow"
+  ],
+  "numeric_features": [
+    "age",
+    "length_of_stay_hours",
+    "billed_amount",
+    "payment_days"
+  ],
+  "scaled_with": "StandardScaler (fit on train set only)",
+  "scaler_path": "models/claim_scaler.joblib",
+  "encoding": "One-Hot Encoding with drop='first'",
+  "excluded_features": {
+    "leakage": [
+      "approved_amount",
+      "approval_ratio"
+    ],
+    "independent_of_target": [
+      "risk_score"
+    ]
+  },
+  "class_imbalance_handling": "class_weight='balanced' (LogReg) / compute_sample_weight (XGBoost)",
+  "split": {
+    "train": 16947,
+    "val": 3631,
+    "test": 3632
+  },
+  "artifacts": {
+    "logistic_regression": "models/claim_logreg.joblib",
+    "xgboost_base": "models/claim_xgb.joblib",
+    "xgboost_tuned": "models/claim_xgb_tuned.joblib",
+    "scaler": "models/claim_scaler.joblib"
+  },
+  "tuning": {
+    "method": "RandomizedSearchCV",
+    "n_iter": 50,
+    "cv_folds": 5,
+    "scoring": "f1_weighted",
+    "best_params": {
+      "colsample_bytree": 0.6699819708383744,
+      "gamma": 0.4910841716647178,
+      "learning_rate": 0.11332717825420285,
+      "max_depth": 3,
+      "min_child_weight": 2,
+      "n_estimators": 484,
+      "reg_alpha": 0.09310276780589921,
+      "reg_lambda": 2.2944315159066537,
+      "subsample": 0.9601672228653322
+    },
+    "best_cv_f1": 0.4991
+  },
+  "key_signals": [
+    "payment_days \u2014 strongest signal in EDA",
+    "billed_amount \u2014 secondary signal (variance difference across classes)",
+    "payment_days_band \u2014 engineered bin capturing payment speed grouping",
+    "billed_amount_band \u2014 engineered bin capturing amount grouping"
+  ],
+  "caveats": [
+    "payment_days for Rejected claims has non-zero values due to null imputation in Phase 2.",
+    "Treat payment_days_band as a soft signal. Document in model card.",
+    "Dataset is synthetic \u2014 signals are modest but real compared to Model A."
+  ]
+}

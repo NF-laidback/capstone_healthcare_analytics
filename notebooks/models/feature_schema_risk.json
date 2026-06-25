@@ -1,0 +1,96 @@
+{
+  "model": "Model A \u2014 Visit Risk Classifier",
+  "target": "risk_score",
+  "target_encoding": {
+    "Low": 0,
+    "Medium": 1,
+    "High": 2
+  },
+  "n_features": 27,
+  "features": [
+    "age",
+    "chronic_flag",
+    "length_of_stay_hours",
+    "billed_amount",
+    "gender_M",
+    "city_Chennai",
+    "city_Delhi",
+    "city_Hyderabad",
+    "city_Mumbai",
+    "city_Pune",
+    "insurance_provider_HealthPlus",
+    "insurance_provider_MediCareX",
+    "insurance_provider_SecureLife",
+    "department_ER",
+    "department_General",
+    "department_ICU",
+    "department_Neurology",
+    "department_Orthopedics",
+    "visit_type_ICU",
+    "visit_type_OPD",
+    "age_group_Young_Adult",
+    "age_group_Adult",
+    "age_group_Senior",
+    "los_band_Normal",
+    "los_band_Long",
+    "billed_amount_band_Mid",
+    "billed_amount_band_High"
+  ],
+  "numeric_features": [
+    "age",
+    "length_of_stay_hours",
+    "billed_amount"
+  ],
+  "scaled_with": "StandardScaler (fit on train set only)",
+  "scaler_path": "models/risk_scaler.joblib",
+  "encoding": "One-Hot Encoding with drop='first'",
+  "excluded_features": {
+    "leakage": [
+      "approved_amount",
+      "approval_ratio"
+    ],
+    "temporal_leakage": [
+      "payment_days",
+      "payment_days_band"
+    ],
+    "other_target": [
+      "claim_status"
+    ]
+  },
+  "class_imbalance_handling": "class_weight='balanced' (LogReg) / compute_sample_weight (XGBoost)",
+  "split": {
+    "train": 16947,
+    "val": 3631,
+    "test": 3632
+  },
+  "artifacts": {
+    "logistic_regression": "models/risk_logreg.joblib",
+    "xgboost_base": "models/risk_xgb.joblib",
+    "xgboost_tuned": "models/risk_xgb_tuned.joblib",
+    "scaler": "models/risk_scaler.joblib"
+  },
+  "tuning": {
+    "method": "RandomizedSearchCV",
+    "n_iter": 50,
+    "cv_folds": 5,
+    "scoring": "f1_weighted",
+    "best_params": {
+      "colsample_bytree": 0.9213923721539394,
+      "gamma": 0.14101728628565324,
+      "learning_rate": 0.045487908755944564,
+      "max_depth": 3,
+      "min_child_weight": 8,
+      "n_estimators": 291,
+      "reg_alpha": 0.5759245752580846,
+      "reg_lambda": 1.9632955105992804,
+      "subsample": 0.6510758917689862
+    },
+    "best_cv_f1": 0.3498
+  },
+  "caveats": [
+    "Dataset is synthetic \u2014 risk_score has no real predictors (EDA confirmed).",
+    "Near-baseline performance (~49.9%) is expected. Document in model card.",
+    "Tuning reduced overfitting but did not raise the validation F1 ceiling.",
+    "payment_days excluded due to temporal leakage \u2014 not available at visit time."
+  ]
+}
